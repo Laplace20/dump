@@ -281,11 +281,12 @@
       when: inventory_hostname == "R3"
     - name: Set IP R3 f2/0
       ios_config:
-      lines:
-        - int f2/0
-        - ip add 10.0.0.21 255.255.255.252
-        - no shut
+        lines:
+          - int f2/0
+          - ip add 10.0.0.21 255.255.255.252
+          - no shut
       when: inventory_hostname == "R3"
+
     - name: Set IP R4 f0/0
       ios_config:
         lines:
