@@ -8,14 +8,14 @@
       lines:
         - interface loopback 0
         - ip address 10.1.1.2 255.255.255.255
-  when: inventory_hostname == "R1"
+      when: inventory_hostname == "R1"
 
 - name: Set IP R2 loopback
   ios_config:
     lines:
       - interface loopback 0
       - ip address 10.1.1.1 255.255.255.255
-    when: inventory_hostname == "R2"
+  when: inventory_hostname == "R2"
 
 - name: Set IP R3 loopback
   ios_config:
@@ -28,7 +28,7 @@
   gather_facts: no
   connection: network_cli
   tasks:
-  - name: Koneksi EIGRP R1
+- name: Koneksi EIGRP R1
   ios_config:
     lines:
     - router eigrp 64501
@@ -42,7 +42,7 @@
       - router eigrp 64501
       - network 10.0.0.8 0.0.0.3
       - network 10.1.1.1 0.0.0.0
-    when: inventory_hostname == "R2"
+  when: inventory_hostname == "R2"
 - name: Koneksi EIGRP R3
   ios_config:
     lines:
@@ -55,7 +55,7 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - name: Koneksi BGP R4
+- name: Koneksi BGP R4
   ios_config:
     lines:
     - router bgp 64401
@@ -88,7 +88,7 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - name: Koneksi BGP R2
+- name: Koneksi BGP R2
   ios_config:
     lines:
     - neighbor 10.1.1.3 remote-as 64501
@@ -140,7 +140,7 @@
   gather_facts: no
   connection: network_cli
   tasks:
-  - name: Assign VRF R2 CustomerA
+- name: Assign VRF R2 CustomerA
   ios_config:
     lines:
     - ip vrf CustomerA
