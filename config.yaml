@@ -1,0 +1,344 @@
+- name: Set IP Loopback
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+    - name: Set IP R1 loopback
+      ios_config:
+      lines:
+        - interface loopback 0
+        - ip address 10.1.1.2 255.255.255.255
+  when: inventory_hostname == "R1"
+
+- name: Set IP R2 loopback
+  ios_config:
+    lines:
+      - interface loopback 0
+      - ip address 10.1.1.1 255.255.255.255
+    when: inventory_hostname == "R2"
+
+- name: Set IP R3 loopback
+  ios_config:
+    lines:
+    - interface loopback 0
+    - ip address 10.1.1.3 255.255.255.255
+  when: inventory_hostname == "R3"
+- name: Koneksi EIGRP Router Provider
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+  - name: Koneksi EIGRP R1
+  ios_config:
+    lines:
+    - router eigrp 64501
+    - network 10.0.0.8 0.0.0.3
+    - network 10.0.0.12 0.0.0.3
+    - network 10.1.1.2 0.0.0.0
+  when: inventory_hostname == "R1"
+- name: Koneksi EIGRP R2
+  ios_config:
+    lines:
+      - router eigrp 64501
+      - network 10.0.0.8 0.0.0.3
+      - network 10.1.1.1 0.0.0.0
+    when: inventory_hostname == "R2"
+- name: Koneksi EIGRP R3
+  ios_config:
+    lines:
+    - router eigrp 64501
+    - network 10.0.0.12 0.0.0.3
+    - network 10.1.1.3 0.0.0.0
+  when: inventory_hostname == "R3"
+- name: Konfigurasi BGP CE
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+    - name: Koneksi BGP R4
+  ios_config:
+    lines:
+    - router bgp 64401
+    - neighbor 10.0.0.1 remote-as 64501
+    - network 172.16.1.0 mask 255.255.255.0
+  when: inventory_hostname == "R4"
+- name: Koneksi BGP R6
+  ios_config:
+    lines:
+    - router bgp 64402
+    - neighbor 10.0.0.17 remote-as 64501
+    - network 172.16.2.0 mask 255.255.255.0
+  when: inventory_hostname == "R6"
+- name: Koneksi BGP R5
+  ios_config:
+    lines:
+    - router bgp 64301
+    - neighbor 10.0.0.5 remote-as 64501
+    - network 172.16.1.0 mask 255.255.255.0
+  when: inventory_hostname == "R5"
+- name: Koneksi BGP R7
+  ios_config:
+    lines:
+    - router bgp 64302
+    - neighbor 10.0.0.21 remote-as 64501
+    - network 172.16.2.0 mask 255.255.255.0
+  when: inventory_hostname == "R7"
+- name: Konfigurasi BGP PE
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+    - name: Koneksi BGP R2
+  ios_config:
+    lines:
+    - neighbor 10.1.1.3 remote-as 64501
+    - neighbor 10.1.1.3 update-source lo0
+    - address-family vpnv4
+    - neighbor 10.1.1.3 activate
+  parents: router bgp 64501
+  when: inventory_hostname == "R2"
+- name: Koneksi BGP R3
+  ios_config:
+    lines:
+    - neighbor 10.1.1.1 remote-as 64501
+    - neighbor 10.1.1.1 update-source lo0
+    - address-family vpnv4
+    - neighbor 10.1.1.1 activate
+  parents: router bgp 64501
+  when: inventory_hostname == "R3"
+- name: Aktivasi MPLS
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+- name: Aktivasi MPLS R1 f0/0
+  ios_config:
+    lines:
+    - interface FastEthernet 0/0
+    - mpls ip
+  when: inventory_hostname == "R1"
+- name: Aktivasi MPLS R1 f1/0
+  ios_config:
+    lines:
+    - interface FastEthernet 1/0
+    - mpls ip
+  when: inventory_hostname == "R1"
+- name: Aktivasi MPLS R2
+  ios_config:
+    lines:
+    - interface FastEthernet 0/0
+    - mpls ip
+  when: inventory_hostname == "R2"
+- name: Aktivasi MPLS R3
+  ios_config:
+    lines:
+    - interface FastEthernet 0/0
+    - mpls ip
+  when: inventory_hostname == "R3"
+- name: Assign VRF
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+  - name: Assign VRF R2 CustomerA
+  ios_config:
+    lines:
+    - ip vrf CustomerA
+    - rd 64501:1
+    - route-target both 64501:1
+  when: inventory_hostname == "R2"
+- name: Assign VRF R2 CustomerB
+  ios_config:
+    lines:
+    - ip vrf CustomerB
+    - rd 64501:2
+    - route-target both 64501:2
+  when: inventory_hostname == "R2"
+- name: Assign VRF L3 R2 CustomerA
+  ios_config:
+    lines:
+    - interface FastEthernet 1/0
+    - ip vrf forwarding CustomerA
+  when: inventory_hostname == "R2"
+- name: Assign VRF L3 R2 CustomerB
+  ios_config:
+    lines:
+    - interface FastEthernet 2/0
+    - ip vrf forwarding CustomerB
+  when: inventory_hostname == "R2"
+- name: Assign VRF R3 CustomerA
+  ios_config:
+    lines:
+    - ip vrf CustomerA
+    - rd 64501:1
+    - route-target both 64501:1
+  when: inventory_hostname == "R3"
+- name: Assign VRF R3 CustomerB
+  ios_config:
+    lines:
+    - ip vrf CustomerB
+    - rd 64501:2
+    - route-target both 64501:2
+  when: inventory_hostname == "R3"
+- name: Assign VRF L3 R3 CustomerA
+  ios_config:
+    lines:
+    - interface FastEthernet 1/0
+    - ip vrf forwarding CustomerA
+  when: inventory_hostname == "R3"
+- name: Assign VRF L3 R3 CustomerB
+  ios_config:
+    lines:
+    - interface FastEthernet 2/0
+    - ip vrf forwarding CustomerB
+  when: inventory_hostname == "R3"
+- name: Konfigurasi BGP PE ke CE
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+- name: Konfigurasi BGP PE ke CE R2 CustomerA
+  ios_config:
+    lines:
+    - address-family ipv4 vrf CustomerA
+    - neighbor 10.0.0.2 remote-as 64401
+  parents: router bgp 64501
+  when: inventory_hostname == "R2"
+- name: Konfigurasi BGP PE ke CE R3 CustomerA
+  ios_config:
+    lines:
+    - address-family ipv4 vrf CustomerA
+    - neighbor 10.0.0.18 remote-as 64402
+  parents: router bgp 64501
+  when: inventory_hostname == "R3"
+- name: Konfigurasi BGP PE ke CE R2 CustomerB
+  ios_config:
+    lines:
+    - address-family ipv4 vrf CustomerB
+    - neighbor 10.0.0.6 remote-as 64301
+  parents: router bgp 64501
+  when: inventory_hostname == "R2"
+- name: Konfigurasi BGP PE ke CE R3 CustomerB
+  ios_config:
+    lines:
+    - address-family ipv4 vrf CustomerB
+    - neighbor 10.0.0.22 remote-as 64302
+  parents: router bgp 64501
+  when: inventory_hostname == "R3"
+- name: Set IP Address
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  tasks:
+- name: Set IP R1 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.10 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R1"
+- name: Set IP R1 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 10.0.0.14 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R1"
+- name: Set IP R2 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.9 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R2"
+- name: Set IP R2 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 10.0.0.1 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R2"
+- name: Set IP R2 f2/0
+  ios_config:
+    lines:
+    - int f2/0
+    - ip add 10.0.0.5 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R2"
+- name: Set IP R3 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.13 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R3"
+- name: Set IP R3 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 10.0.0.17 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R3"
+- name: Set IP R3 f2/0
+  ios_config:
+  lines:
+  - int f2/0
+  - ip add 10.0.0.21 255.255.255.252
+  - no shut
+  when: inventory_hostname == "R3"
+- name: Set IP R4 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.2 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R4"
+- name: Set IP R4 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 172.16.1.1 255.255.255.0
+    - no shut
+  when: inventory_hostname == "R4"
+- name: Set IP R5 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.6 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R5"
+- name: Set IP R5 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 172.16.1.1 255.255.255.0
+    - no shut
+  when: inventory_hostname == "R5"
+- name: Set IP R6 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.18 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R6"
+- name: Set IP R6 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 172.16.2.1 255.255.255.0
+    - no shut
+  when: inventory_hostname == "R6"
+- name: Set IP R7 f0/0
+  ios_config:
+    lines:
+    - int f0/0
+    - ip add 10.0.0.22 255.255.255.252
+    - no shut
+  when: inventory_hostname == "R7"
+- name: Set IP R7 f1/0
+  ios_config:
+    lines:
+    - int f1/0
+    - ip add 172.16.2.1 255.255.255.0
+    - no shut
+  when: inventory_hostname == "R7"
